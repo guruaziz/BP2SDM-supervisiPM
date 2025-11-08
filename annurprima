@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrumen Supervisi Annur Prima</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat library untuk membuat PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* CSS Kustom untuk warna header dan sub-header */
+        .header-green {
+            background-color: #166534; /* Warna hijau yang lebih gelap (Tailwind 'green-800') */
+        }
+        .sub-header-green {
+             background-color: #15803d; /* Warna hijau yang sedang (Tailwind 'green-700') */
+        }
+        
+        /* CSS untuk PDF */
+        @media print {
+            body {
+                background-color: #fff;
+            }
+            #app-container {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+            .button-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- KONTENER APLIKASI (Langsung tampil, tanpa login) -->
+    <div id="app-container" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Header Aplikasi -->
+        <div class="header-green text-white p-6 rounded-lg shadow-md mb-6">
+            <h1 class="text-3xl font-bold text-center">Instrumen Supervisi Proses Pembelajaran</h1>
+            <p class="text-center text-lg mt-1">Yayasan Pendidikan Islam Annur Prima</p>
+        </div>
+
+        <!-- Form Aplikasi -->
+        <div id="form-supervisi" class="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+            
+            <!-- Metadata Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6 pb-6 border-b border-gray-300">
+                
+                <div>
+                    <label for="nama_guru" class="block text-sm font-medium text-gray-700 mb-1">Nama Guru</label>
+                    <input type="text" id="nama_guru" name="nama_guru" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="nama_supervisor" class="block text-sm font-medium text-gray-700 mb-1">Nama Supervisor</label>
+                    <input type="text" id="nama_supervisor" name="nama_supervisor" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="unit_pendidikan" class="block text-sm font-medium text-gray-700 mb-1">Unit Satuan Pendidikan</label>
+                    <select id="unit_pendidikan" name="unit_pendidikan" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Pilih Unit --</option>
+                        <option value="RA">RA</option>
+                        <option value="MIS-A">MIS-A</option>
+                        <option value="MIS-B">MIS-B</option>
+                        <option value="SMP">SMP</option>
+                        <option value="MA">MA</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="kelas_semester" class="block text-sm font-medium text-gray-700 mb-1">Kelas/Semester</label>
+                    <input type="text" id="kelas_semester" name="kelas_semester" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="mata_pelajaran" class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                    <input type="text" id="mata_pelajaran" name="mata_pelajaran" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="waktu_supervisi" class="block text-sm font-medium text-gray-700 mb-1">Waktu Supervisi</label>
+                    <input type="datetime-local" id="waktu_supervisi" name="waktu_supervisi" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="jam_ke" class="block text-sm font-medium text-gray-700 mb-1">Jam ke</label>
+                    <input type="text" id="jam_ke" name="jam_ke" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="tujuan_supervisi" class="block text-sm font-medium text-gray-700 mb-1">Tujuan Supervisi</label>
+                    <textarea id="tujuan_supervisi" name="tujuan_supervisi" rows="2" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">Mengevaluasi keselarasan pembelajaran dengan PM untuk meningkatkan mutu pembelajaran unit</textarea>
+                </div>
+            </div>
+
+            <!-- Tabel Instrumen -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full border-collapse border border-black">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%] border border-black">No</th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[40%] border border-black">Aspek Supervisi</th>
+                            <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%] border border-black">Skor (4/3/2/1)</th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%] border border-black">Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white" id="instrumen-body">
+                        <!-- Data instrumen akan dimasukkan di sini oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Hasil dan Rangkuman -->
+            <div class="mt-8">
+                <!-- Hasil Nilai -->
+                <div id="hasil-nilai" class="text-center p-4 rounded-lg bg-gray-50 border border-gray-200 mb-6">
+                    <p class="text-gray-600">Hasil nilai akan muncul di sini setelah dihitung.</p>
+                </div>
+
+                <!-- Masukan dan Tindak Lanjut -->
+                <div class="summary-section grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Masukkan terhadap pelaksanaan Proses Pembelajaran secara umum:</h3>
+                        <textarea id="masukan_umum" name="masukan_umum" rows="5" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Tindak lanjut:</h3>
+                        <textarea id="tindak_lanjut" name="tindak_lanjut" rows="5" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="button-container flex items-center justify-center space-x-4 mt-8 mb-4">
+            <button id="hitung" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out">
+                Hitung Nilai
+            </button>
+            <button id="simpan" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out">
+                Simpan ke PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT APLIKASI -->
+    <script>
+        // Memastikan jsPDF dimuat dengan benar
+        const { jsPDF } = window.jspdf;
+
+        // Data untuk instrumen
+        const instrumenData = [
+            { no: 'I.', aspek: "Kegiatan Pendahuluan", header: true },
+            { no: 1, aspek: "Menyampaikan Salam dan Do'a, menyiapkan peserta didik dalam mengawali kegiatan pembelajaran" },
+            { no: 2, aspek: "Guru melakukan Apersepsi di awal pembelajaran untuk menilai kesiapan setiap individu peserta didik" },
+            { no: 3, aspek: "Menyampaikan tujuan pembelajaran, kompetensi yang akan dicapai oleh peserta didik serta manfaat materi pada kehidupan" },
+            { no: 4, aspek: "Guru mengelola kesadaran sosial dan emosional (KSE) siswa untuk fokus pada materi yang akan diajarkan." },
+            { no: 'II.', aspek: "Kegiatan Inti", header: true },
+            { no: 'A.', aspek: "Guru menguasai materi yang diajarkan", header: true },
+            { no: 5, aspek: "Kemampuan menyesuaikan materi dengan tujuan pembelajaran" },
+            { no: 6, aspek: "Kemampuan mengaitkan materi dengan pengetahuan lain dan diintegrasikan dengan Qur'an dan Hadits serta dengan kehidupan nyata" },
+            { no: 7, aspek: "Menggunakan pertanyaan terbuka yang menstimulasi pemikiran yang mendalam." },
+            { no: 8, aspek: "Memotivasi peserta didik untuk berpartisipasi aktif agar terbangun sikap pembelajar mandiri." },
+            { no: 'B.', aspek: "Guru menerapkan strategi pembelajaran yang mendidik", header: true },
+            { no: 9, aspek: "Guru menyajikan materi secara sistematis (mudah ke sulit, dari konkrit ke abstrak)" },
+            { no: 10, aspek: "Guru melaksanakan pembelajaran sesuai dengan kompetensi yang dicapai" },
+            { no: 11, aspek: "Guru menumbuhkan partisipasi aktif murid khususnya dalam memberikan pendapat dan mengajukan pertanyaan" },
+            { no: 12, aspek: "Menguasai pengelolaan kelas dengan baik." },
+            { no: 13, aspek: "Melaksanakan asesmen formatif dalam Proses Pembelajaran (opsional)" },
+            { no: 14, aspek: "Melaksanakan umpan balik pelaksanaan proses pembelajaran" },
+            { no: 15, aspek: "Melaksanakan pembelajaran sesuai dengan alokasi waktu yang direncanakan" },
+            { no: 16, aspek: "Guru melaksanakan pembelajaran yang bertujuan menjaga seluruh aspek fitrah dan adab Islami murid" },
+            { no: 'C.', aspek: "Guru memanfaatkan sumber belajar / media dalam pembelajaran", header: true },
+            { no: 17, aspek: "Menunjukkan keterampilan dalam menggunakan sumber dan media pembelajaran sehingga menghasilkan pesan yang menarik dan bermakna" },
+            { no: 18, aspek: "Melibatkan peserta didik dalam pemanfaatan media dan sumber pembelajaran" },
+            { no: 'D.', aspek: "Guru memicu dan/atau memelihara keterlibatan peserta didik dalam pembelajaran", header: true },
+            { no: 19, aspek: "Melaksanakan pembelajaran yang berpusat pada siswa" },
+            { no: 20, aspek: "Guru senantiasa memberikan umpan balik langsung yang mendorong semangat belajar dan kemampuan peserta didik" },
+            { no: 21, aspek: "Guru memberikan respon positif terhadap partisipasi peserta didik" },
+            { no: 22, aspek: "Guru melaksanakan praktik adaptasi pengajaran sebagai respon atas umpan balik murid terhadap kebutuhan belajarnya." },
+            { no: 23, aspek: "Guru memberi penjelasan dalam kelompok yang berbeda dengan proses diferensiasi yang terstruktur tentang materi pelajaran, serta pemberian contoh tentang cara menerapkannya. (Diferensiasi Proses)" },
+            { no: 24, aspek: "Guru melaksanakan Penilaian Produk melalui Projek/ Hasil Produk siswa yang berbeda dalam pencapaian kompetensi pembelajaran yang sama (Diferensiasi Produk)" },
+            { no: 25, aspek: "Menumbuhkan keceriaan dan antusiasme peserta didik dalam pembelajaran" },
+            { no: 'E.', aspek: "Guru menggunakan bahasa yang benar dan tepat dalam pembelajaran", header: true },
+            { no: 26, aspek: "Menggunakan bahasa Indonesia yang baik, benar, dan kontekstual" },
+            { no: 27, aspek: "Menggunakan pilihan kata yang mudah dipahami oleh peserta didik" },
+            { no: 28, aspek: "Menyampaikan pesan dengan metode yang sesuai" },
+            { no: 'III.', aspek: "Kegiatan Penutup (Guru mengakhiri pembelajaran dengan efektif)", header: true },
+            { no: 29, aspek: "Membuat rangkuman dan/atau kesimpulan dengan melibatkan peserta didik" },
+            { no: 30, aspek: "Melakukan refleksi pembelajaran (kebermaknaan pembelajaran) untuk memahami kekuatan diri dan area yang perlu dikembangkan." },
+            { no: 31, aspek: "Menyampaikan rencana pembelajaran berikutnya" },
+            { no: 32, aspek: "Menutup Pembelajaran dengan Do'a dan Salam" }
+        ];
+
+        // Fungsi untuk membuat baris tabel
+        function createRow(item) {
+            // Baris Header
+            if (item.header) {
+                // Tambahkan kelas 'sub-header-green' di sini
+                return `
+                    <tr class="sub-header-green">
+                        <td class="px-3 py-2 font-semibold text-white border border-black">${item.no}</td>
+                        <td class="px-3 py-2 font-semibold text-white border border-black" colspan="3">${item.aspek}</td>
+                    </tr>`;
+            }
+            
+            // Baris Item
+            const radioName = `skor_${item.no}`;
+            return `
+                <tr>
+                    <td class="px-3 py-3 align-top text-sm text-gray-700 border border-black">${item.no}</td>
+                    <td class="px-3 py-3 align-top text-sm text-gray-900 border border-black">${item.aspek}</td>
+                    <td class="px-3 py-3 align-top border border-black">
+                        <div class="radio-group flex justify-around items-center" data-item="${item.no}">
+                            ${[4, 3, 2, 1].map(val => `
+                                <label class="text-sm">
+                                    <input type="radio" name="${radioName}" value="${val}" class="mr-1">
+                                    ${val}
+                                 </label>
+                            `).join('')}
+                        </div>
+                    </td>
+                    <td class="px-3 py-3 align-top border border-black">
+                        <textarea class="catatan w-full h-16 text-sm p-1 border rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500" name="catatan_${item.no}"></textarea>
+                    </td>
+                </tr>`;
+        }
+        
+        // Fungsi utama untuk inisialisasi aplikasi
+        function initializeApp() {
+            // 1. Memuat Tabel
+            const tbody = document.getElementById("instrumen-body");
+            if (tbody) {
+                let content = "";
+                instrumenData.forEach(item => {
+                    content += createRow(item);
+                });
+                tbody.innerHTML = content;
+            }
+
+            // 2. Event Listener untuk Tombol Hitung
+            const hitungButton = document.getElementById('hitung');
+            if (hitungButton) {
+                hitungButton.addEventListener('click', () => {
+                    const totalItems = 32;
+                    const maxScorePerItem = 4;
+                    const skorMaksimum = totalItems * maxScorePerItem; // SM = 128
+                    
+                    let skorPerolehan = 0; // SP
+                    const inputs = document.querySelectorAll('input[type="radio"]:checked');
+                    
+                    inputs.forEach(input => {
+                        skorPerolehan += parseInt(input.value);
+                    });
+
+                    let nilaiAkhir = 0;
+                    if (skorMaksimum > 0) {
+                        nilaiAkhir = (skorPerolehan / skorMaksimum) * 100;
+                    }
+
+                    let deskripsi = "";
+                    let gradeClass = "";
+
+                    if (nilaiAkhir >= 86) {
+                        deskripsi = "Sangat Baik (A)";
+                        gradeClass = "text-green-800 bg-green-100";
+                    } else if (nilaiAkhir >= 70) {
+                        deskripsi = "Baik (B)";
+                        gradeClass = "text-blue-800 bg-blue-100";
+                    } else if (nilaiAkhir >= 55) {
+                        deskripsi = "Cukup (C)";
+                        gradeClass = "text-yellow-800 bg-yellow-100";
+                    } else {
+                        deskripsi = "Kurang (D)";
+                        gradeClass = "text-red-800 bg-red-100";
+                    }
+
+                    const hasilContainer = document.getElementById('hasil-nilai');
+                    hasilContainer.innerHTML = `
+                        <div class="mb-2">
+                            <span class="font-medium text-gray-700">Skor Perolehan (SP):</span>
+                            <span class="font-bold text-lg text-gray-900">${skorPerolehan}</span>
+                            <span class="mx-2 text-gray-400">|</span>
+                            <span class="font-medium text-gray-700">Skor Maksimum (SM):</span>
+                            <span class="font-bold text-lg text-gray-900">${skorMaksimum}</span>
+                        </div>
+                        <div class="p-3 rounded-md ${gradeClass}">
+                            <span class="font-medium">Nilai Akhir:</span>
+                            <span class="font-bold text-xl">${nilaiAkhir.toFixed(2)}</span>
+                            <span class="mx-2 text-gray-500">|</span>
+                            <span class="font-medium">Deskripsi:</span>
+                            <span class="font-bold text-xl">${deskripsi}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            // 3. Event Listener untuk Tombol Simpan PDF
+            const simpanButton = document.getElementById('simpan');
+            if (simpanButton) {
+                simpanButton.addEventListener('click', () => {
+                    const formElement = document.getElementById('form-supervisi');
+                    if (!formElement) return;
+
+                    const namaGuru = document.getElementById('nama_guru').value || 'Nama Guru';
+                    const mapel = document.getElementById('mata_pelajaran').value || 'Mata Pelajaran';
+                    const fileName = `Supervisi - ${namaGuru} - ${mapel}.pdf`;
+
+                    // Tampilkan pesan loading
+                    simpanButton.textContent = "Sedang Memproses PDF...";
+                    simpanButton.disabled = true;
+
+                    html2canvas(formElement, {
+                        scale: 2, // Resolusi lebih tinggi
+                        useCORS: true,
+                        logging: false,
+                        onclone: (clonedDoc) => {
+                            // Saat di-clone untuk PDF, pastikan semua nilai input terlihat
+                            // Tampilkan nilai text dan textarea
+                            clonedDoc.querySelectorAll('input[type="text"], textarea').forEach(el => {
+                                el.style.border = 'none';
+                                el.style.backgroundColor = 'transparent';
+                                // Untuk textarea, buat elemen div baru untuk menampilkan teks
+                                if (el.tagName === 'TEXTAREA') {
+                                    const div = clonedDoc.createElement('div');
+                                    div.innerText = el.value;
+                                    div.style.width = el.style.width;
+                                    div.style.height = 'auto'; // biarkan tinggi otomatis
+                                    div.style.padding = '1px';
+                                    div.style.fontSize = '14px'; // samakan font
+                                    div.style.whiteSpace = 'pre-wrap'; // agar line break terjaga
+                                    el.parentNode.replaceChild(div, el);
+                                } else {
+                                     el.style.padding = '1px';
+                                }
+                            });
+                            // Tampilkan nilai select
+                            clonedDoc.querySelectorAll('select').forEach(el => {
+                                const div = clonedDoc.createElement('div');
+                                div.innerText = el.options[el.selectedIndex].text;
+                                div.style.padding = '1px';
+                                div.style.fontSize = '14px';
+                                el.parentNode.replaceChild(div, el);
+                            });
+                            // Tampilkan nilai radio button yang dipilih
+                            clonedDoc.querySelectorAll('.radio-group').forEach(group => {
+                                const checkedRadio = group.querySelector('input[type="radio"]:checked');
+                                if (checkedRadio) {
+                                    group.innerHTML = `<span style="font-size: 14px; font-weight: bold; padding: 2px;">${checkedRadio.value}</span>`;
+                                } else {
+                                    group.innerHTML = `<span style="font-size: 14px; padding: 2px;">-</span>`;
+                                }
+                            });
+                        }
+                    }).then(canvas => {
+                        const imgData = canvas.toDataURL('image/png');
+                        const pdf = new jsPDF('p', 'mm', 'a4');
+                        const pdfWidth = pdf.internal.pageSize.getWidth();
+                        const pdfHeight = pdf.internal.pageSize.getHeight();
+                        
+                        const imgWidth = canvas.width;
+                        const imgHeight = canvas.height;
+                        
+                        const ratio = imgWidth / imgHeight;
+                        let widthInPdf = pdfWidth - 20; // 10mm margin kiri + 10mm margin kanan
+                        let heightInPdf = widthInPdf / ratio;
+                        let position = 10; // 10mm margin atas
+
+                        // Jika konten lebih panjang dari 1 halaman A4
+                        if (heightInPdf > (pdfHeight - 20)) { 
+                            heightInPdf = pdfHeight - 20; // set tinggi max
+                            widthInPdf = heightInPdf * ratio; // set ulang lebar
+                            
+                            // Jika lebarnya jadi lebih besar dari A4, kita perlu scale berdasarkan lebar
+                            if(widthInPdf > pdfWidth - 20) {
+                                widthInPdf = pdfWidth - 20;
+                                heightInPdf = widthInPdf / ratio;
+                            }
+                        }
+
+                        // Logika untuk multi-halaman
+                        const pageHeight = pdfHeight - 20; // 10mm top 10mm bottom margin
+                        const pageWidth = pdfWidth - 20;
+                        const pageHeightInPixels = (pageHeight * canvas.width) / pageWidth;
+                        
+                        let y_position = 0;
+                        let totalHeight = canvas.height;
+
+                        while (y_position < totalHeight) {
+                            const slice = document.createElement('canvas');
+                            slice.width = canvas.width;
+                            slice.height = Math.min(pageHeightInPixels, totalHeight - y_position);
+                            const sliceCtx = slice.getContext('2d');
+                            sliceCtx.drawImage(canvas, 0, y_position, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
+                            
+                            const sliceImgData = slice.toDataURL('image/png');
+                            const sliceHeightInPdf = (slice.height * pageWidth) / slice.width;
+                            
+                            if (y_position > 0) {
+                                pdf.addPage();
+                            }
+                            pdf.addImage(sliceImgData, 'PNG', 10, 10, pageWidth, sliceHeightInPdf);
+                            y_position += pageHeightInPixels;
+                        }
+
+                        pdf.save(fileName);
+
+                        // Kembalikan tombol ke normal
+                        simpanButton.textContent = "Simpan ke PDF";
+                        simpanButton.disabled = false;
+
+                    }).catch(err => {
+                        console.error("Error saat membuat PDF:", err);
+                        // Kembalikan tombol ke normal jika ada error
+                        simpanButton.textContent = "Simpan ke PDF";
+                        simpanButton.disabled = false;
+                    });
+                });
+            }
+        }
+
+        // Menjalankan aplikasi utama setelah DOM dimuat
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>
